@@ -16,7 +16,7 @@ struct EsightApp: App {
         }
     }
 }
- 
+
 class AppDelegate: NSObject, NSApplicationDelegate {
     // status(menu) bar item
     var statusbarItem: NSStatusItem?
@@ -27,32 +27,33 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     @AppStorage(Settings.FullScreenKey) var fullscreen = true
     @AppStorage(Settings.Twenty_TewntyKey) var twenty_twenty = false
     //
-    @State var timerMinute: Int = 0
-    @State var timerSecond: Int = 0
-    var timer: Timer? = nil
+    var timerMinute: Int = 0
+    var timerSecond: Int = 0
+    var timer: Timer?
+    var leftTime: Int = 0
+    @State var restTime: Int = 0
     //
     var notificationWindow: NSWindow!
-    
     // menu popover
     @objc func togglePopover(_ sender: AnyObject?) {
         // show
-        func showPopup(_ sender: AnyObject?) {
+        func showPopup(_: AnyObject?) {
             if let button = statusbarItem?.button {
                 popOver.show(relativeTo: button.bounds, of: button, preferredEdge: NSRectEdge.minY)
             }
         }
-        //close
+        // close
         func closePopover(_ sender: AnyObject?) {
             popOver.performClose(sender)
         }
         if popOver.isShown {
             closePopover(sender)
         } else {
-           showPopup(sender)
+            showPopup(sender)
         }
     }
-    
-    func applicationDidFinishLaunching(_ notification: Notification) {
+
+    func applicationDidFinishLaunching(_: Notification) {
         //
         func createMenuBarView() {
             let menuBar = MenuBar()
@@ -62,48 +63,90 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             popOver.contentViewController?.view = NSHostingView(rootView: menuBar)
             // create menu-bar button
             statusbarItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
-            statusbarItem?.button?.title = "40min"
             statusbarItem?.button?.action = #selector(togglePopover)
-            }
-        
-        createMenuBarView()
-        //
-        func timerManager() {
-            timer?.tolerance = 5
-            timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { _ in
-                if self.onhold {
-                    self.timerMinute = 0
-                    self.timerSecond = 0
-                } else if self.twenty_twenty {
-                    if self.timerMinute < 60 {
-                        if self.timerSecond == 59 {
-                            self.timerMinute += 1
-                            self.timerSecond = 0
-                        } else {
-                            self.timerSecond += 1
-                        }
-                    } else {
-                        self.timerMinute = 0
-                        self.timerSecond = 0
-                    }
-                }
-            }
         }
-        //nNotification View
-        func createNotificationView() {
-            notificationWindow = NSWindow(
-                contentRect: NSRect(
-                    x: 0, y: 0, width: NSScreen.main!.frame.width,
-                    height: NSScreen.main!.frame.height),
+
+        createMenuBarView()
+        // \\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\
+        // \\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\
+        func pushNotification() {
+            // Notification View
+            func createNotificationView() {
+                notificationWindow = NSWindow(
+                    contentRect: NSRect(
+                        x: 0, y: 0, width: NSScreen.main!.frame.width,
+                        height: NSScreen.main!.frame.height
+                    ),
                     styleMask: [.closable, .fullSizeContentView],
                     backing: .buffered,
-                    defer: false)
-            notificationWindow.center()
-            notificationWindow.level = .floating
-            notificationWindow.orderFrontRegardless()
-            notificationWindow.contentView = NSHostingView(rootView: NotificationView(window: notificationWindow))
-            notificationWindow.isOpaque = true
-            notificationWindow.backgroundColor = NSColor(red: 0, green: 0, blue: 0, alpha: 0.6)
+                    defer: false
+                )
+                notificationWindow.center()
+                notificationWindow.level = .floating
+                notificationWindow.orderFrontRegardless()
+                notificationWindow.contentView = NSHostingView(rootView: NotificationView(window: notificationWindow, restSecond: self.$restTime))
+                notificationWindow.isOpaque = true
+                notificationWindow.backgroundColor = NSColor(red: 128, green: 128, blue: 128, alpha: 0.6)
+            }
+            // \\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\
+            func timerManager() {
+                if twenty_twenty {
+                    worktime = 20 - timerMinute
+                }
+                timer?.tolerance = 5
+                timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { _ in
+                    if self.leftTime >= 0 {
+                        self.leftTime = self.worktime - self.timerMinute
+                    }
+                    self.statusbarItem?.button?.title = "\(self.leftTime)min"
+                    if !self.onhold {
+                        if !self.twenty_twenty {
+                            // normal mode
+                            self.timerSecond += 1
+                            if self.timerMinute < 60 {
+                                if self.timerMinute <= self.worktime {
+                                    if self.timerSecond == 60 {
+                                        self.timerMinute += 1
+                                        self.timerSecond = 0
+                                    }
+                                } else {
+                                    self.restTime = self.timerSecond
+                                }
+                            } else {
+                                self.timerSecond = 0
+                                self.timerMinute = 0
+                                self.restTime = 0
+                            }
+                        } else {
+                            // 20-20-20 mode
+                            self.timerSecond += 1
+                            if self.timerMinute < 20 {
+                                if self.timerSecond == 60 {
+                                    self.timerMinute += 1
+                                    self.timerSecond = 0
+                                }
+                            } else {
+                                if self.timerSecond < 20 {
+                                    self.timerSecond += 1
+                                    self.restTime += 1
+                                } else {
+                                    self.timerSecond = 0
+                                    self.timerMinute = 0
+                                    self.restTime = 0
+                                }
+                            }
+                        }
+                    } else {
+                        self.timerSecond = 0
+                        self.timerMinute = 0
+                    }
+                }
+                if timerMinute == worktime, timerSecond == 0 {
+                    createNotificationView()
+                }
+            }
+            timerManager()
         }
+        pushNotification()
     }
 }

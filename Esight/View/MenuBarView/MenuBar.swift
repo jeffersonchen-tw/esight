@@ -17,10 +17,9 @@ struct MenuBar: View {
     //
     var body: some View {
         VStack {
-            Spacer().frame(maxHeight: 25)
+            Spacer().frame(minHeight: 8)
             Text("Esight").fontWeight(.heavy).font(.custom("PT Serif", size: 22)).kerning(1.0)
             Divider()
-            Spacer().frame(height: 30)
             VStack(alignment: .leading) {
             Picker("Mode", selection: $fullscreen) {
                 Text("fullscreen pop-up").font(.custom("Helvetica",size: 14)).tag(true)
@@ -37,9 +36,9 @@ struct MenuBar: View {
                             }
                         }
                     }.offset(x: 50)
-                Spacer().frame(height: 25)
+                Spacer().frame(minHeight: 20)
                 }
-                Spacer().frame(height: 25)
+                Spacer().frame(minHeight: 20)
                 Toggle(isOn: $twenty_twenty) {
                     Text("20-20-20 Rule").font(.custom("Helvetica",size: 14))
                        }.toggleStyle(CheckboxToggleStyle())
@@ -61,24 +60,24 @@ struct MenuBar: View {
                 }.offset(x: 20)
             }
             Divider()
-            Toggle(isOn: $onhold) {
-                HStack{
-                    Image(systemName: "pause.fill")
-                    Text("On Hold")
+                Button(action: {onhold.toggle()}) {
+                    HStack {
+                        Image(systemName: $onhold.wrappedValue ? "play.fill": "pause.fill")
+                        Text($onhold.wrappedValue ? "enable Esight": "On Hold")
+                    }
                 }
-            }.toggleStyle(CheckboxToggleStyle())
+            }.padding(8)
             if onhold {
                 Text("Esight won't work untill you dismiss on-hold")
-                    .font(.custom("Helvetica",size: 14))
+                    .font(.custom("Helvetica",size: 12))
                     .foregroundColor(.red)
+                    .fixedSize(horizontal: false, vertical: true)
                 }
-            }.padding()
-            Spacer()
             Button(action: {
                 NSApp.terminate(self)
             }) {
                 Text("quit the app")
-            }.padding()
+            }.padding(.bottom, 5)
         }.frame(width: 300, height: 300, alignment: .top)
     }
 }
