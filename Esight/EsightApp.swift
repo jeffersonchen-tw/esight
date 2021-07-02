@@ -56,7 +56,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         //
         timerData = AppTimer()
         func createMenuBarView() {
-            let menuBar = MenuBar()
+            let menuBar = MenuBar(timerData: timerData)
             popOver.behavior = .transient
             popOver.animates = true
             popOver.contentViewController = NSViewController()
@@ -130,17 +130,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                     }
                     if self.timerData.TimerMinute == self.worktime, self.timerData.TimerSecond == 0 {
                         createNotificationView()
-                    }
-                    if self.notificationWindow.isVisible {
-                        if !self.twenty_twenty {
-                            if self.timerData.TimerMinute == 60 {
-                                self.notificationWindow.close()
-                            }
-                        } else {
-                            if self.timerData.TimerSecond == 20 {
-                                self.notificationWindow.close()
-                            }
-                        }
                     }
                 }
             }

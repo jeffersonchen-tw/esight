@@ -14,6 +14,8 @@ struct MenuBar: View {
     @AppStorage(Settings.WorkTimeKey) var worktime = 40
     @AppStorage(Settings.FullScreenKey) var fullscreen = true
     @AppStorage(Settings.OnHold) var onhold = false
+    // timer data
+    @ObservedObject var timerData: AppTimer
     //
     var body: some View {
         VStack {
@@ -61,6 +63,16 @@ struct MenuBar: View {
             }
             Spacer()
             Divider()
+                Button(action: {
+                    self.timerData.TimerMinute = 0
+                    self.timerData.TimerSecond = 0
+                    self.timerData.NMleftSecond = 0
+                }) {
+                    HStack {
+                        Image(systemName: "arrow.clockwise")
+                        Text("just take a break")
+                    }
+                }
             Spacer()
                 Button(action: {onhold.toggle()}) {
                     HStack {
@@ -80,7 +92,7 @@ struct MenuBar: View {
             }) {
                 Text("quit the app")
             }.padding(.bottom, 5)
-        }.frame(width: 270, height: 270, alignment: .top)
+        }.frame(width: 270, height: 285, alignment: .top)
     }
 }
 
