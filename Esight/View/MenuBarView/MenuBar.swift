@@ -17,9 +17,10 @@ struct MenuBar: View {
     //
     var body: some View {
         VStack {
-            Spacer().frame(minHeight: 8)
-            Text("Esight").fontWeight(.heavy).font(.custom("PT Serif", size: 22)).kerning(1.0)
+            Spacer().frame(maxHeight: 15)
+            Text("Esight").fontWeight(.heavy).font(.custom("PT Serif", size: 24)).kerning(1.0)
             Divider()
+            Spacer().frame(maxHeight: 20)
             VStack(alignment: .leading) {
             Picker("Mode", selection: $fullscreen) {
                 Text("fullscreen pop-up").font(.custom("Helvetica",size: 14)).tag(true)
@@ -36,14 +37,13 @@ struct MenuBar: View {
                             }
                         }
                     }.offset(x: 50)
-                Spacer().frame(minHeight: 20)
                 }
-                Spacer().frame(minHeight: 20)
+                Spacer().frame(maxHeight: 20)
                 Toggle(isOn: $twenty_twenty) {
                     Text("20-20-20 Rule").font(.custom("Helvetica",size: 14))
                        }.toggleStyle(CheckboxToggleStyle())
-            Spacer().frame(height: 15)
             if !twenty_twenty {
+                Spacer().frame(maxHeight: 10)
                 HStack {
                     Stepper(onIncrement: {
                         if worktime < 50 {
@@ -59,7 +59,9 @@ struct MenuBar: View {
                     Text("minutes per hour")
                 }.offset(x: 20)
             }
+            Spacer()
             Divider()
+            Spacer()
                 Button(action: {onhold.toggle()}) {
                     HStack {
                         Image(systemName: $onhold.wrappedValue ? "play.fill": "pause.fill")
@@ -78,7 +80,7 @@ struct MenuBar: View {
             }) {
                 Text("quit the app")
             }.padding(.bottom, 5)
-        }.frame(width: 300, height: 300, alignment: .top)
+        }.frame(width: 270, height: 270, alignment: .top)
     }
 }
 

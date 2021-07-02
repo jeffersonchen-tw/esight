@@ -18,6 +18,7 @@
 		D4C31FDA2688BAD8002D328A /* MenuBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4C31FD92688BAD8002D328A /* MenuBar.swift */; };
 		D4C31FDD2688BADE002D328A /* NotificationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4C31FDC2688BADE002D328A /* NotificationView.swift */; };
 		D4C31FE02688BAE3002D328A /* SettingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4C31FDF2688BAE3002D328A /* SettingView.swift */; };
+		D4C8A98B268EECB5008285F3 /* AppTimer.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4C8A98A268EECB5008285F3 /* AppTimer.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -35,6 +36,7 @@
 		D4C31FD92688BAD8002D328A /* MenuBar.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MenuBar.swift; sourceTree = "<group>"; };
 		D4C31FDC2688BADE002D328A /* NotificationView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NotificationView.swift; sourceTree = "<group>"; };
 		D4C31FDF2688BAE3002D328A /* SettingView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SettingView.swift; sourceTree = "<group>"; };
+		D4C8A98A268EECB5008285F3 /* AppTimer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppTimer.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -90,6 +92,7 @@
 			isa = PBXGroup;
 			children = (
 				D4C31FCC2688BA9B002D328A /* AppSettings.swift */,
+				D4C8A98A268EECB5008285F3 /* AppTimer.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -224,6 +227,7 @@
 				D43D7A3B2688B6840098ED67 /* EsightApp.swift in Sources */,
 				D4C31FD42688BAC6002D328A /* InformationView.swift in Sources */,
 				D4C31FCD2688BA9B002D328A /* AppSettings.swift in Sources */,
+				D4C8A98B268EECB5008285F3 /* AppTimer.swift in Sources */,
 				D4C31FD32688BAC6002D328A /* AboutView.swift in Sources */,
 				D4C31FDD2688BADE002D328A /* NotificationView.swift in Sources */,
 			);

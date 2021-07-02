@@ -7,6 +7,7 @@
 
 import SwiftUI
 
+
 @main
 struct EsightApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) var appdelegate
@@ -27,11 +28,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     @AppStorage(Settings.FullScreenKey) var fullscreen = true
     @AppStorage(Settings.Twenty_TewntyKey) var twenty_twenty = false
     //
-    var timerMinute: Int = 0
-    var timerSecond: Int = 0
     var timer: Timer?
-    var leftTime: Int = 0
-    @State var restTime: Int = 0
+    var timerData: AppTimer!
+    var leftMinute: Int = 0
     //
     var notificationWindow: NSWindow!
     // menu popover
@@ -55,6 +54,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     func applicationDidFinishLaunching(_: Notification) {
         //
+        timerData = AppTimer()
         func createMenuBarView() {
             let menuBar = MenuBar()
             popOver.behavior = .transient
@@ -67,7 +67,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         }
 
         createMenuBarView()
-        // \\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\
         // \\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\
         func pushNotification() {
             // Notification View
@@ -84,65 +83,54 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                 notificationWindow.center()
                 notificationWindow.level = .floating
                 notificationWindow.orderFrontRegardless()
-                notificationWindow.contentView = NSHostingView(rootView: NotificationView(window: notificationWindow, restSecond: self.$restTime))
+                notificationWindow.contentView = NSHostingView(rootView: NotificationView(window: notificationWindow, timerData: timerData))
                 notificationWindow.isOpaque = true
                 notificationWindow.backgroundColor = NSColor(red: 128, green: 128, blue: 128, alpha: 0.6)
             }
             // \\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\
             func timerManager() {
-                if twenty_twenty {
-                    worktime = 20 - timerMinute
-                }
                 timer?.tolerance = 5
                 timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { _ in
-                    if self.leftTime >= 0 {
-                        self.leftTime = self.worktime - self.timerMinute
+                    if self.twenty_twenty {
+                        self.worktime = 20
                     }
-                    self.statusbarItem?.button?.title = "\(self.leftTime)min"
+                    if self.leftMinute >= 0 {
+                        self.leftMinute = self.worktime - self.timerData.TimerMinute
+                    }
+                    if self.leftMinute > 0 {
+                        self.statusbarItem?.button?.image = nil
+                        self.statusbarItem?.button?.title = "\(self.leftMinute)min"
+                    } else {
+                        self.statusbarItem?.button?.image = NSImage(systemSymbolName: "eye.slash.fill", accessibilityDescription: nil)
+                    }
                     if !self.onhold {
+                        // not on-hold
+                        self.timerData.TimerSecond += 1
+                        if self.timerData.TimerSecond == 60 {
+                            self.timerData.TimerMinute += 1
+                            self.timerData.TimerSecond = 0
+                        }
                         if !self.twenty_twenty {
                             // normal mode
-                            self.timerSecond += 1
-                            if self.timerMinute < 60 {
-                                if self.timerMinute <= self.worktime {
-                                    if self.timerSecond == 60 {
-                                        self.timerMinute += 1
-                                        self.timerSecond = 0
-                                    }
-                                } else {
-                                    self.restTime = self.timerSecond
-                                }
-                            } else {
-                                self.timerSecond = 0
-                                self.timerMinute = 0
-                                self.restTime = 0
+                            if self.timerData.TimerMinute == 60 {
+                                self.timerData.TimerSecond = 0
+                                self.timerData.TimerMinute = 0
                             }
                         } else {
                             // 20-20-20 mode
-                            self.timerSecond += 1
-                            if self.timerMinute < 20 {
-                                if self.timerSecond == 60 {
-                                    self.timerMinute += 1
-                                    self.timerSecond = 0
-                                }
-                            } else {
-                                if self.timerSecond < 20 {
-                                    self.timerSecond += 1
-                                    self.restTime += 1
-                                } else {
-                                    self.timerSecond = 0
-                                    self.timerMinute = 0
-                                    self.restTime = 0
-                                }
+                            if self.timerData.TimerMinute == 20, self.timerData.TimerSecond == 20 {
+                                self.timerData.TimerSecond = 0
+                                self.timerData.TimerMinute = 0
                             }
                         }
                     } else {
-                        self.timerSecond = 0
-                        self.timerMinute = 0
+                        // on-hold
+                        self.timerData.TimerSecond = 0
+                        self.timerData.TimerMinute = 0
                     }
-                }
-                if timerMinute == worktime, timerSecond == 0 {
-                    createNotificationView()
+                    if self.timerData.TimerMinute == self.worktime, self.timerData.TimerSecond == 0 {
+                        createNotificationView()
+                    }
                 }
             }
             timerManager()
