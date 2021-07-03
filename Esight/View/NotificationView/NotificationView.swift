@@ -37,11 +37,35 @@ struct NotificationView: View {
                 if !twenty_twenty {
                     // normal mode
                     Circle()
-                        .trim(from: 0, to: CGFloat(0))
+                        .trim(from: 0, to: CGFloat(self.timerData.NMleftTime / (60 - self.worktime))
+                        )
                         .stroke(Color.white.opacity(0.8), style: StrokeStyle(lineWidth: 30, lineCap: .round, lineJoin: .round))
                         .frame(width: 350, height: 350, alignment: .center)
                         .foregroundColor(.white)
                         .rotationEffect(.degrees(-270))
+                    VStack {
+                        if self.timerData.NMleftTime > 60 {
+                            // show minute
+                            let minute = Int(self.timerData.NMleftTime / 60)
+                            Text("\(minute)")
+                                .font(.system(size: 60))
+                                .fontWeight(.bold)
+                                .foregroundColor(.white)
+                            Text("min").font(.system(size: 30))
+                                .fontWeight(.bold)
+                                .foregroundColor(.white)
+                        } else {
+                            // show second
+                            let second = self.timerData.NMleftTime % 60
+                            Text("\(second)")
+                                .font(.system(size: 60))
+                                .fontWeight(.bold)
+                                .foregroundColor(.white)
+                            Text("sec").font(.system(size: 30))
+                                .fontWeight(.bold)
+                                .foregroundColor(.white)
+                        }
+                    }
                 } else {
                     // 20-20-20 mode
                     Circle()

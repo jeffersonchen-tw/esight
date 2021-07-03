@@ -10,5 +10,5 @@ import SwiftUI
 class AppTimer: ObservableObject {
     @Published var TimerSecond: Int = 0
     @Published var TimerMinute: Int = 0
-    @Published var NMleftSecond: Int = 0
+    @Published var NMleftTime: Int = 0
 }

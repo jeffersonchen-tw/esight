@@ -66,7 +66,7 @@ struct MenuBar: View {
                 Button(action: {
                     self.timerData.TimerMinute = 0
                     self.timerData.TimerSecond = 0
-                    self.timerData.NMleftSecond = 0
+                    self.timerData.NMleftTime = 0
                 }) {
                     HStack {
                         Image(systemName: "arrow.clockwise")

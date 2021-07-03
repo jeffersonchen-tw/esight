@@ -107,27 +107,13 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                     }
                     if !self.onhold {
                         // not on-hold
-                        // show notification
-                        if self.timerData.TimerMinute == self.worktime, self.timerData.TimerSecond == 0 {
-                            if self.fullscreen {
-                                createNotificationView()
-                            } else {
-                                let notification = UNMutableNotificationContent()
-                                let body = ["have a cup of coffee ☕️", "have a cup of tea 🫖",
-                                "go jogging 🏃‍♂️🏃‍♀️", "stretch yourself"]
-                                notification.title = "Take a break!"
-                                notification.body = body.randomElement()!
-                                notification.sound = UNNotificationSound.default
-                                let request = UNNotificationRequest(identifier: UUID().uuidString, content: notification, trigger: nil)
-                                UNUserNotificationCenter.current().add(request)
-                            }
-                        }
                         //
                         self.timerData.TimerSecond += 1
                         if self.timerData.TimerSecond == 60 {
                             self.timerData.TimerMinute += 1
                             self.timerData.TimerSecond = 0
                         }
+                        
                         if !self.twenty_twenty {
                             // normal mode
                             if self.timerData.TimerMinute == 60 {
@@ -141,6 +127,22 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                                 self.timerData.TimerSecond = 0
                                 self.timerData.TimerMinute = 0
                                 // TODO: close window, if exists
+                            }
+                        }
+                        // show notification
+                        if self.timerData.TimerMinute == self.worktime, self.timerData.TimerSecond == 0 {
+                            if self.fullscreen {
+                                self.timerData.NMleftTime = (60 - self.timerData.TimerMinute) * 60 - self.timerData.TimerSecond
+                                createNotificationView()
+                            } else {
+                                let notification = UNMutableNotificationContent()
+                                let body = ["have a cup of coffee ☕️", "have a cup of tea 🫖",
+                                "go jogging 🏃‍♂️🏃‍♀️", "stretch yourself"]
+                                notification.title = "Take a break!"
+                                notification.body = body.randomElement()!
+                                notification.sound = UNNotificationSound.default
+                                let request = UNNotificationRequest(identifier: UUID().uuidString, content: notification, trigger: nil)
+                                UNUserNotificationCenter.current().add(request)
                             }
                         }
                     } else {
