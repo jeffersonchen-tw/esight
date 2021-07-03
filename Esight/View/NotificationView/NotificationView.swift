@@ -88,6 +88,7 @@ struct NotificationView: View {
                 window?.close()
             }, label: {
                 Text("Skip")
+                    .foregroundColor(.orange)
                     .font(.custom("Helvetica", size: 40))
             })
                 .buttonStyle(BorderlessButtonStyle())

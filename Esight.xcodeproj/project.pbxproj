@@ -3,10 +3,11 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 50;
+	objectVersion = 52;
 	objects = {
 
 /* Begin PBXBuildFile section */
+		D4179C0D2690470100CA1004 /* LaunchAtLogin in Frameworks */ = {isa = PBXBuildFile; productRef = D4179C0C2690470100CA1004 /* LaunchAtLogin */; };
 		D43D7A3B2688B6840098ED67 /* EsightApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = D43D7A3A2688B6840098ED67 /* EsightApp.swift */; };
 		D43D7A3D2688B6840098ED67 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D43D7A3C2688B6840098ED67 /* ContentView.swift */; };
 		D43D7A3F2688B6840098ED67 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D43D7A3E2688B6840098ED67 /* Assets.xcassets */; };
@@ -44,6 +45,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D4179C0D2690470100CA1004 /* LaunchAtLogin in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -161,12 +163,16 @@
 				D43D7A332688B6840098ED67 /* Sources */,
 				D43D7A342688B6840098ED67 /* Frameworks */,
 				D43D7A352688B6840098ED67 /* Resources */,
+				D4179C0E269049F300CA1004 /* ShellScript */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 			);
 			name = Esight;
+			packageProductDependencies = (
+				D4179C0C2690470100CA1004 /* LaunchAtLogin */,
+			);
 			productName = Esight;
 			productReference = D43D7A372688B6840098ED67 /* Esight.app */;
 			productType = "com.apple.product-type.application";
@@ -194,6 +200,9 @@
 				Base,
 			);
 			mainGroup = D43D7A2E2688B6840098ED67;
+			packageReferences = (
+				D4179C0B2690470100CA1004 /* XCRemoteSwiftPackageReference "LaunchAtLogin" */,
+			);
 			productRefGroup = D43D7A382688B6840098ED67 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -214,6 +223,26 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		D4179C0E269049F300CA1004 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${BUILT_PRODUCTS_DIR}/LaunchAtLogin_LaunchAtLogin.bundle/Contents/Resources/copy-helper-swiftpm.sh\"\n\n";
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		D43D7A332688B6840098ED67 /* Sources */ = {
@@ -421,6 +450,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		D4179C0B2690470100CA1004 /* XCRemoteSwiftPackageReference "LaunchAtLogin" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/sindresorhus/LaunchAtLogin";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 4.1.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		D4179C0C2690470100CA1004 /* LaunchAtLogin */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = D4179C0B2690470100CA1004 /* XCRemoteSwiftPackageReference "LaunchAtLogin" */;
+			productName = LaunchAtLogin;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = D43D7A2F2688B6840098ED67 /* Project object */;
 }

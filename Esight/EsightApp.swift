@@ -87,7 +87,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                 notificationWindow.orderFrontRegardless()
                 notificationWindow.contentView = NSHostingView(rootView: NotificationView(window: notificationWindow, timerData: timerData))
                 notificationWindow.isOpaque = true
-                notificationWindow.backgroundColor = NSColor(red: 128, green: 128, blue: 128, alpha: 0.6)
+                notificationWindow.backgroundColor = NSColor(red: 128, green: 128, blue: 128, alpha: 0.7)
             }
             // \\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\
             func timerManager() {
