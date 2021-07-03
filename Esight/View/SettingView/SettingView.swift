@@ -36,13 +36,8 @@ struct SettingView: View {
                     Button("grant permission") {
                         UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .badge, .sound]) {
                             success, error in
-                            if success {
-                                print("success")
-                            } else if let error = error {
-                                print(error.localizedDescription)
-                            }
                         }
-                    }
+                    }.offset(x: 30)
                 }
                 Spacer().frame(height: 40)
                 Toggle(isOn: $twenty_twenty) {

@@ -30,7 +30,7 @@ struct MenuBar: View {
             }.frame(width: 180)
                 if !fullscreen {
                     Button("grant permission") {
-                        UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .badge]) {
+                        UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .badge, .sound]) {
                             success, error in
                             if success {
                                 print("success")

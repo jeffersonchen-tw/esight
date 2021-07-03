@@ -6,7 +6,7 @@
 //
 
 import SwiftUI
-
+import UserNotifications
 
 @main
 struct EsightApp: App {
@@ -53,6 +53,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     func applicationDidFinishLaunching(_: Notification) {
+        //
+        UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) {(granted, error) in}
         //
         timerData = AppTimer()
         func createMenuBarView() {
@@ -105,6 +107,22 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                     }
                     if !self.onhold {
                         // not on-hold
+                        // show notification
+                        if self.timerData.TimerMinute == self.worktime, self.timerData.TimerSecond == 0 {
+                            if self.fullscreen {
+                                createNotificationView()
+                            } else {
+                                let notification = UNMutableNotificationContent()
+                                let body = ["have a cup of coffee ☕️", "have a cup of tea 🫖",
+                                "go jogging 🏃‍♂️🏃‍♀️", "stretch yourself"]
+                                notification.title = "Take a break!"
+                                notification.body = body.randomElement()!
+                                notification.sound = UNNotificationSound.default
+                                let request = UNNotificationRequest(identifier: UUID().uuidString, content: notification, trigger: nil)
+                                UNUserNotificationCenter.current().add(request)
+                            }
+                        }
+                        //
                         self.timerData.TimerSecond += 1
                         if self.timerData.TimerSecond == 60 {
                             self.timerData.TimerMinute += 1
@@ -115,12 +133,14 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                             if self.timerData.TimerMinute == 60 {
                                 self.timerData.TimerSecond = 0
                                 self.timerData.TimerMinute = 0
+                                // TODO: close window, if exists
                             }
                         } else {
                             // 20-20-20 mode
                             if self.timerData.TimerMinute == 20, self.timerData.TimerSecond == 20 {
                                 self.timerData.TimerSecond = 0
                                 self.timerData.TimerMinute = 0
+                                // TODO: close window, if exists
                             }
                         }
                     } else {
@@ -128,9 +148,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                         self.timerData.TimerSecond = 0
                         self.timerData.TimerMinute = 0
                     }
-                    if self.timerData.TimerMinute == self.worktime, self.timerData.TimerSecond == 0 {
-                        createNotificationView()
-                    }
+
                 }
             }
             timerManager()
