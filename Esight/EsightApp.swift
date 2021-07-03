@@ -28,7 +28,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     @AppStorage(Settings.FullScreenKey) var fullscreen = true
     @AppStorage(Settings.Twenty_TewntyKey) var twenty_twenty = false
     //
-    var timer: Timer?
+    // var timer: Timer?
+    var timer: DispatchSourceTimer?
     var timerData: AppTimer!
     var leftMinute: Int = 0
     //
@@ -54,7 +55,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     func applicationDidFinishLaunching(_: Notification) {
         //
-        UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) {(granted, error) in}
+        UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { _, _ in }
         //
         timerData = AppTimer()
         func createMenuBarView() {
@@ -91,67 +92,81 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             }
             // \\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\
             func timerManager() {
-                timer?.tolerance = 5
-                timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { _ in
-                    if self.twenty_twenty {
-                        self.worktime = 20
+                // timer?.tolerance = 5
+                // timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { _ in
+                timer = DispatchSource.makeTimerSource()
+                timer?.schedule(deadline: DispatchTime.now(), repeating: .seconds(1), leeway: .nanoseconds(1000))
+                timer?.setRegistrationHandler(handler: {
+                    DispatchQueue.main.async {
+                        print("timer start working")
                     }
-                    if self.leftMinute >= 0 {
-                        self.leftMinute = self.worktime - self.timerData.TimerMinute
-                    }
-                    if self.leftMinute > 0 {
-                        self.statusbarItem?.button?.image = nil
-                        self.statusbarItem?.button?.title = "\(self.leftMinute)min"
-                    } else {
-                        self.statusbarItem?.button?.image = NSImage(systemSymbolName: "eye.slash.fill", accessibilityDescription: nil)
-                    }
-                    if !self.onhold {
-                        // not on-hold
-                        //
-                        self.timerData.TimerSecond += 1
-                        if self.timerData.TimerSecond == 60 {
-                            self.timerData.TimerMinute += 1
-                            self.timerData.TimerSecond = 0
+                })
+                timer?.setEventHandler {
+                    DispatchQueue.main.async {
+                        if self.twenty_twenty {
+                            self.worktime = 20
                         }
-                        
-                        if !self.twenty_twenty {
-                            // normal mode
-                            if self.timerData.TimerMinute == 60 {
+                        if self.leftMinute >= 0 {
+                            self.leftMinute = self.worktime - self.timerData.TimerMinute
+                        }
+                        if self.leftMinute > 0 {
+                            self.statusbarItem?.button?.image = nil
+                            self.statusbarItem?.button?.title = "\(self.leftMinute)min"
+                        } else {
+                            self.statusbarItem?.button?.image = NSImage(systemSymbolName: "eye.slash.fill", accessibilityDescription: nil)
+                        }
+                        if !self.onhold {
+                            // not on-hold
+                            //
+                            self.timerData.TimerSecond += 1
+                            if self.timerData.TimerSecond == 60 {
+                                self.timerData.TimerMinute += 1
                                 self.timerData.TimerSecond = 0
-                                self.timerData.TimerMinute = 0
-                                // TODO: close window, if exists
+                            }
+                            if !self.twenty_twenty {
+                                // normal mode
+                                if self.timerData.TimerMinute == 60 {
+                                    self.timerData.TimerSecond = 0
+                                    self.timerData.TimerMinute = 0
+                                    if self.notificationWindow != nil {
+                                        self.notificationWindow.close()
+                                    }
+                                }
+                            } else {
+                                // 20-20-20 mode
+                                if self.timerData.TimerMinute == 20, self.timerData.TimerSecond == 20 {
+                                    self.timerData.TimerSecond = 0
+                                    self.timerData.TimerMinute = 0
+                                    if self.notificationWindow != nil {
+                                        self.notificationWindow.close()
+                                    }
+                                }
+                            }
+                            // show notification
+                            if self.timerData.TimerMinute == self.worktime, self.timerData.TimerSecond == 0 {
+                                if self.fullscreen {
+                                    self.timerData.NMleftTime = (60 - self.timerData.TimerMinute) * 60 - self.timerData.TimerSecond
+                                    createNotificationView()
+                                } else {
+                                    let notification = UNMutableNotificationContent()
+                                    let body = ["have a cup of coffee ☕️", "have a cup of tea 🫖",
+                                                "go jogging 🏃‍♂️🏃‍♀️", "stretch yourself"]
+                                    notification.title = "Take a break!"
+                                    notification.body = body.randomElement()!
+                                    notification.sound = UNNotificationSound.default
+                                    let request = UNNotificationRequest(identifier: UUID().uuidString, content: notification, trigger: nil)
+                                    UNUserNotificationCenter.current().add(request)
+                                }
                             }
                         } else {
-                            // 20-20-20 mode
-                            if self.timerData.TimerMinute == 20, self.timerData.TimerSecond == 20 {
-                                self.timerData.TimerSecond = 0
-                                self.timerData.TimerMinute = 0
-                                // TODO: close window, if exists
-                            }
+                            // on-hold
+                            self.timerData.TimerSecond = 0
+                            self.timerData.TimerMinute = 0
                         }
-                        // show notification
-                        if self.timerData.TimerMinute == self.worktime, self.timerData.TimerSecond == 0 {
-                            if self.fullscreen {
-                                self.timerData.NMleftTime = (60 - self.timerData.TimerMinute) * 60 - self.timerData.TimerSecond
-                                createNotificationView()
-                            } else {
-                                let notification = UNMutableNotificationContent()
-                                let body = ["have a cup of coffee ☕️", "have a cup of tea 🫖",
-                                "go jogging 🏃‍♂️🏃‍♀️", "stretch yourself"]
-                                notification.title = "Take a break!"
-                                notification.body = body.randomElement()!
-                                notification.sound = UNNotificationSound.default
-                                let request = UNNotificationRequest(identifier: UUID().uuidString, content: notification, trigger: nil)
-                                UNUserNotificationCenter.current().add(request)
-                            }
-                        }
-                    } else {
-                        // on-hold
-                        self.timerData.TimerSecond = 0
-                        self.timerData.TimerMinute = 0
                     }
-
+                    print("1 second")
                 }
+                timer?.activate()
             }
             timerManager()
         }
