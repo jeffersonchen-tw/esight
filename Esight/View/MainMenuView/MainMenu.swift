@@ -9,6 +9,8 @@ import SwiftUI
 
 struct MainMenu: View {
     @Binding var selected: Int
+    @State var showAlert: Bool = false
+
     var body: some View {
         VStack {
             Image("eye")
@@ -16,17 +18,23 @@ struct MainMenu: View {
                 .scaledToFit()
                 .frame(height: 320)
                 .padding(.top)
-            Text("E-sight").font(.custom("Times New Roman",size: 65)).fontWeight(.heavy).kerning(1.8)
+            Text("E-sight").font(.custom("Times New Roman", size: 65)).fontWeight(.heavy).kerning(1.8)
             Text("relax, replenise, and rejuvenate").font(.custom("Didot Italic", size: 30)).kerning(0.9)
             Spacer()
             Button(action: {
-                NSApp.terminate(self)
-            }){
+                self.showAlert = true
+            }, label: {
                 Text("Disable ME ⚠️").font(.custom("Helvetica", size: 30))
             }
+            )
             .buttonStyle(BorderlessButtonStyle())
             .padding(.bottom)
+            .alert(isPresented: self.$showAlert) {
+                Alert(title: Text("Are you sure to disable E-sight"), primaryButton: .default(Text("Enable E-sight")),
+                      secondaryButton: .default(Text("Sure"), action: {
+                          NSApp.terminate(self)
+                      }))
+            }
         }
     }
 }
-
