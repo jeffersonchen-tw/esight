@@ -18,7 +18,7 @@ struct NotificationView: View {
             Spacer()
             if !twenty_twenty {
                 // normal mode
-                Text("Take a long break, or have an shut-eye")
+                Text("Take a long break, \n or have an shut-eye")
                     .font(.custom("Helvetica", size: 80))
                     .fontWeight(.heavy)
                 Spacer()
@@ -90,6 +90,7 @@ struct NotificationView: View {
                 Text("Skip")
                     .foregroundColor(.orange)
                     .font(.custom("Helvetica", size: 40))
+                    .fontWeight(.bold)
             })
                 .buttonStyle(BorderlessButtonStyle())
             Spacer()
