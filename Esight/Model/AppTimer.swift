@@ -11,4 +11,5 @@ class AppTimer: ObservableObject {
     @Published var TimerSecond: Int = 0
     @Published var TimerMinute: Int = 0
     @Published var NMleftTime: Int = 0
+    @Published var onHold: Bool = false
 }

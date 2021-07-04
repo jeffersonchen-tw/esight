@@ -19,22 +19,19 @@ struct EsightApp: App {
 }
 
 class AppDelegate: NSObject, NSApplicationDelegate {
-    // status(menu) bar item
+    // status (menu) bar item
     var statusbarItem: NSStatusItem?
     var popOver = NSPopover()
     // notification
-    @AppStorage(Settings.OnHold) var onhold = false
     @AppStorage(Settings.WorkTimeKey) var worktime = 40
     @AppStorage(Settings.FullScreenKey) var fullscreen = true
     @AppStorage(Settings.Twenty_TewntyKey) var twenty_twenty = false
-    //
-    // var timer: Timer?
+    // timer
     var timer: DispatchSourceTimer?
     var timerData: AppTimer!
     var leftMinute: Int = 0
-    //
     var notificationWindow: NSWindow!
-    // menu popover
+    // menubar popover
     @objc func togglePopover(_ sender: AnyObject?) {
         // show
         func showPopup(_: AnyObject?) {
@@ -59,7 +56,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         //
         timerData = AppTimer()
         func createMenuBarView() {
-            let menuBar = MenuBar(timerData: timerData)
+            let menuBar = MenuBar(Timer: timer, timerData: timerData)
             popOver.behavior = .transient
             popOver.animates = true
             popOver.contentViewController = NSViewController()
@@ -68,7 +65,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             statusbarItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
             statusbarItem?.button?.action = #selector(togglePopover)
         }
-
         createMenuBarView()
         // \\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\
         func pushNotification() {
@@ -92,15 +88,18 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             }
             // \\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\
             func timerManager() {
-                // timer?.tolerance = 5
-                // timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { _ in
                 timer = DispatchSource.makeTimerSource()
-                timer?.schedule(deadline: DispatchTime.now(), repeating: .seconds(1), leeway: .nanoseconds(1000))
+                timer?.schedule(deadline: DispatchTime.now(), repeating: .seconds(1), leeway: DispatchTimeInterval.seconds(1))
+                // timer start up
                 timer?.setRegistrationHandler(handler: {
                     DispatchQueue.main.async {
-                        print("timer start working")
+                        self.timerData.TimerSecond = 0
+                        self.timerData.TimerMinute = 0
+                        self.timerData.NMleftTime = 0
+                        self.leftMinute = 0
                     }
                 })
+                // timer => repeat every 1 second
                 timer?.setEventHandler {
                     DispatchQueue.main.async {
                         if self.twenty_twenty {
@@ -115,56 +114,48 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                         } else {
                             self.statusbarItem?.button?.image = NSImage(systemSymbolName: "eye.slash.fill", accessibilityDescription: nil)
                         }
-                        if !self.onhold {
-                            // not on-hold
-                            //
-                            self.timerData.TimerSecond += 1
-                            if self.timerData.TimerSecond == 60 {
-                                self.timerData.TimerMinute += 1
+                        
+                        self.timerData.TimerSecond += 1
+                        if self.timerData.TimerSecond == 60 {
+                            self.timerData.TimerMinute += 1
+                            self.timerData.TimerSecond = 0
+                        }
+                        if !self.twenty_twenty {
+                            // normal mode
+                            if self.timerData.TimerMinute == 60 {
                                 self.timerData.TimerSecond = 0
-                            }
-                            if !self.twenty_twenty {
-                                // normal mode
-                                if self.timerData.TimerMinute == 60 {
-                                    self.timerData.TimerSecond = 0
-                                    self.timerData.TimerMinute = 0
-                                    if self.notificationWindow != nil {
-                                        self.notificationWindow.close()
-                                    }
-                                }
-                            } else {
-                                // 20-20-20 mode
-                                if self.timerData.TimerMinute == 20, self.timerData.TimerSecond == 20 {
-                                    self.timerData.TimerSecond = 0
-                                    self.timerData.TimerMinute = 0
-                                    if self.notificationWindow != nil {
-                                        self.notificationWindow.close()
-                                    }
-                                }
-                            }
-                            // show notification
-                            if self.timerData.TimerMinute == self.worktime, self.timerData.TimerSecond == 0 {
-                                if self.fullscreen {
-                                    self.timerData.NMleftTime = (60 - self.timerData.TimerMinute) * 60 - self.timerData.TimerSecond
-                                    createNotificationView()
-                                } else {
-                                    let notification = UNMutableNotificationContent()
-                                    let body = ["have a cup of coffee ☕️", "have a cup of tea 🫖",
-                                                "go jogging 🏃‍♂️🏃‍♀️", "stretch yourself"]
-                                    notification.title = "Take a break!"
-                                    notification.body = body.randomElement()!
-                                    notification.sound = UNNotificationSound.default
-                                    let request = UNNotificationRequest(identifier: UUID().uuidString, content: notification, trigger: nil)
-                                    UNUserNotificationCenter.current().add(request)
+                                self.timerData.TimerMinute = 0
+                                if self.notificationWindow != nil {
+                                    self.notificationWindow.close()
                                 }
                             }
                         } else {
-                            // on-hold
-                            self.timerData.TimerSecond = 0
-                            self.timerData.TimerMinute = 0
+                            // 20-20-20 mode
+                            if self.timerData.TimerMinute == 20, self.timerData.TimerSecond == 20 {
+                                self.timerData.TimerSecond = 0
+                                self.timerData.TimerMinute = 0
+                                if self.notificationWindow != nil {
+                                    self.notificationWindow.close()
+                                }
+                            }
+                        }
+                        // show notification
+                        if self.timerData.TimerMinute == self.worktime, self.timerData.TimerSecond == 0 {
+                            if self.fullscreen {
+                                self.timerData.NMleftTime = (60 - self.timerData.TimerMinute) * 60 - self.timerData.TimerSecond
+                                createNotificationView()
+                            } else {
+                                let notification = UNMutableNotificationContent()
+                                let body = ["have a cup of coffee ☕️", "have a cup of tea 🫖",
+                                            "go jogging 🏃‍♂️🏃‍♀️", "stretch yourself"]
+                                notification.title = "Take a break!"
+                                notification.body = body.randomElement()!
+                                notification.sound = UNNotificationSound.default
+                                let request = UNNotificationRequest(identifier: UUID().uuidString, content: notification, trigger: nil)
+                                UNUserNotificationCenter.current().add(request)
+                            }
                         }
                     }
-                    print("1 second")
                 }
                 timer?.activate()
             }

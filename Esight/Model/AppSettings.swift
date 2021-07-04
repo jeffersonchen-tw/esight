@@ -9,6 +9,5 @@ struct Settings {
     static let Twenty_TewntyKey = "twenty_twenty"
     static let WorkTimeKey = "worktime"
     static let FullScreenKey = "fullscreen"
-    static let OnHold = "onhold"
 }
 

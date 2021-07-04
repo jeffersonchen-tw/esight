@@ -14,7 +14,8 @@ struct MenuBar: View {
     @AppStorage(Settings.Twenty_TewntyKey) var twenty_twenty = false
     @AppStorage(Settings.WorkTimeKey) var worktime = 40
     @AppStorage(Settings.FullScreenKey) var fullscreen = true
-    @AppStorage(Settings.OnHold) var onhold = false
+    //
+    let Timer: DispatchSourceTimer?
     // timer data
     @ObservedObject var timerData: AppTimer
     //
@@ -77,15 +78,25 @@ struct MenuBar: View {
                         Text("just take a break")
                     }
                 }
-                Button(action: {onhold.toggle()}) {
+                Button(action: {
+                    if !self.timerData.onHold {
+                        self.Timer?.suspend()
+                    } else {
+                        self.Timer?.resume()
+                        self.timerData.TimerMinute = 0
+                        self.timerData.TimerSecond = 0
+                        self.timerData.NMleftTime = 0
+                    }
+                    self.timerData.onHold.toggle()
+                }) {
                     HStack {
-                        Image(systemName: $onhold.wrappedValue ? "play.fill" : "pause.fill")
-                        Text($onhold.wrappedValue ? "enable Esight" : "On Hold")
+                        Image(systemName: self.timerData.onHold ? "play.fill" : "pause.fill")
+                        Text(self.timerData.onHold ? "enable Esight" : "On Hold")
                     }
                 }
             }.padding(10)
             }
-            if onhold {
+            if self.timerData.onHold {
                 Text("Esight won't work untill you dismiss on-hold")
                     .font(.custom("Helvetica", size: 12))
                     .foregroundColor(.red)

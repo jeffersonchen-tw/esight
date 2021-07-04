@@ -18,7 +18,9 @@ struct SettingView: View {
     @AppStorage(Settings.FullScreenKey) var fullscreen = true
     //
     @ObservedObject private var launchAtLogin = LaunchAtLogin.observable
+    
     var worktimeList = [20, 25, 30, 35, 40, 45, 50]
+    
     var body: some View {
         VStack {
             Spacer().frame(maxHeight: 10)
