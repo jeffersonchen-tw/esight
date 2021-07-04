@@ -27,7 +27,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     @AppStorage(Settings.FullScreenKey) var fullscreen = true
     @AppStorage(Settings.Twenty_TewntyKey) var twenty_twenty = false
     //
-    var leftTime: Int?
+    var leftTime: Int = 0
     // timer
     var timer: DispatchSourceTimer?
     var timerData: AppTimer!
@@ -67,7 +67,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             statusbarItem?.button?.action = #selector(togglePopover)
         }
         createMenuBarView()
-        // \\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\
+        //
         func pushNotification() {
             func timerManager() {
                 // Notification
@@ -99,7 +99,10 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                     notificationWindow.isOpaque = true
                     notificationWindow.backgroundColor = NSColor(red: 48, green: 48, blue: 48, alpha: 0.7)
                 }
-                
+                func closeNotificationView() {
+                    notificationWindow.close()
+                }
+
                 timer = DispatchSource.makeTimerSource()
                 // repeat every minutes
                 timer?.schedule(deadline: DispatchTime.now(), repeating: DispatchTimeInterval.seconds(60), leeway: DispatchTimeInterval.seconds(5))
@@ -111,24 +114,49 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                         self.timerData.NMleftTime = 0
                     }
                 })
-                // timer
+                // timer event
                 timer?.setEventHandler {
-                    self.timerData.TimerMinute += 1
-                    self.leftTime = self.worktime - self.timerData.TimerMinute
-                    if self.leftTime ?? 0 > 0 {
-                        self.statusbarItem?.button?.image = nil
-                        self.statusbarItem?.button?.title = "\(String(describing: self.leftTime))min"
-                    } else {
-                        self.statusbarItem?.button?.image = NSImage(systemSymbolName: "eye.slash.fill", accessibilityDescription: nil)
-                    }
-                    if self.timerData.TimerMinute == self.worktime {
-                        if self.fullscreen {
-                            createNotificationView()
+                    DispatchQueue.main.async {
+                        self.timerData.TimerMinute += 1
+                        self.leftTime = self.worktime - self.timerData.TimerMinute
+                        // show notification
+                        if self.timerData.TimerMinute == self.worktime {
+                            if self.fullscreen {
+                                createNotificationView()
+                            } else {
+                                createNotification()
+                            }
+                        }
+                        // status bar icon & title
+                        if self.leftTime > 0 {
+                            self.statusbarItem?.button?.image = nil
+                            self.statusbarItem?.button?.title = "\(self.leftTime)min"
                         } else {
-                            createNotification()
+                            self.statusbarItem?.button?.image = NSImage(systemSymbolName: "eye.slash.fill", accessibilityDescription: nil)
+                        }
+                        // close notification window
+                        if self.fullscreen {
+                            if self.notificationWindow != nil && self.notificationWindow.isVisible {
+                                if !self.twenty_twenty {
+                                    if self.timerData.TimerMinute == 60 {
+                                        self.notificationWindow.close()
+                                        self.timerData.TimerSecond = 0
+                                        self.timerData.TimerMinute = 0
+                                        self.timerData.NMleftTime = 0
+                                    }
+                                } else {
+                                    if self.timerData.TimerSecond == 20 {
+                                        self.notificationWindow.close()
+                                        self.timerData.TimerSecond = 0
+                                        self.timerData.TimerMinute = 0
+                                        self.timerData.NMleftTime = 0
+                                    }
+                                }
+                            }
                         }
                     }
                 }
+                // timer event end
                 timer?.activate()
             }
             timerManager()
