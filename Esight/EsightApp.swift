@@ -99,19 +99,19 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                     notificationWindow.isOpaque = true
                     notificationWindow.backgroundColor = NSColor(red: 48, green: 48, blue: 48, alpha: 0.7)
                 }
+                // close notification window
                 func closeNotificationView() {
                     notificationWindow.close()
                 }
-
                 timer = DispatchSource.makeTimerSource()
                 // repeat every minutes
-                timer?.schedule(deadline: DispatchTime.now(), repeating: DispatchTimeInterval.seconds(60), leeway: DispatchTimeInterval.seconds(5))
+                timer?.schedule(deadline: DispatchTime.now() + 60, repeating: DispatchTimeInterval.seconds(60), leeway: DispatchTimeInterval.seconds(5))
                 // timer start up
                 timer?.setRegistrationHandler(handler: {
                     DispatchQueue.main.async {
-                        self.timerData.TimerSecond = 0
-                        self.timerData.TimerMinute = 0
-                        self.timerData.NMleftTime = 0
+                        self.leftTime = self.worktime - self.timerData.TimerMinute
+                        self.statusbarItem?.button?.image = nil
+                        self.statusbarItem?.button?.title = "\(self.worktime)min"
                     }
                 })
                 // timer event
@@ -128,7 +128,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                             }
                         }
                         // status bar icon & title
-                        if self.leftTime > 0 {
+                        if self.leftTime != 0 {
                             self.statusbarItem?.button?.image = nil
                             self.statusbarItem?.button?.title = "\(self.leftTime)min"
                         } else {
