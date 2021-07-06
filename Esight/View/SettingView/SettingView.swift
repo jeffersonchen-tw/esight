@@ -34,9 +34,12 @@ struct SettingView: View {
             Spacer().frame(maxHeight: 90)
             VStack(alignment: .leading) {
                 Toggle("Launch at login", isOn: $launchAtLogin.isEnabled).font(.custom("Helvetica", size: 22))
+                    .padding(5)
                 Spacer().frame(height: 40)
                 Toggle(isOn: $fullscreen) {
-                    Text("By default, the app enable pop-up windows. \n Uncheck to use notification mode").font(.custom("Helvetica", size: 22))
+                    Text("By default, the app enable fullscreen notification. \n Uncheck to use notification of notification center.").font(.custom("Helvetica", size: 22))
+                        .lineSpacing(10)
+                        .padding(5)
                 }.toggleStyle(CheckboxToggleStyle())
                 if !fullscreen {
                     Button("grant permission") {
@@ -48,6 +51,7 @@ struct SettingView: View {
                 Spacer().frame(height: 40)
                 Toggle(isOn: $twenty_twenty) {
                     Text("20-20-20 Rule").font(.custom("Helvetica", size: 22))
+                        .padding(5)
                 }.toggleStyle(CheckboxToggleStyle())
                 Spacer().frame(height: 20)
                 if !twenty_twenty {

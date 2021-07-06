@@ -29,7 +29,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     //
     var leftTime: Int = 0
     // timer
-    var timer: DispatchSourceTimer?
+    var timer: DispatchSourceTimer!
+    var viewTimer: DispatchSourceTimer!
     var timerData: AppTimer!
     var notificationWindow: NSWindow!
     // menubar popover
@@ -81,6 +82,23 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                     let request = UNNotificationRequest(identifier: UUID().uuidString, content: notification, trigger: nil)
                     UNUserNotificationCenter.current().add(request)
                 }
+                // close Notification View
+                func closeNotificationView() {
+                    notificationWindow.close()
+                    timerData.Reset()
+                }
+
+                // status bar icon & title
+                func setStatusTitle() {
+                    leftTime = worktime - timerData.TimerMinute
+                    if leftTime != 0 {
+                        statusbarItem?.button?.image = nil
+                        statusbarItem?.button?.title = "\(leftTime)min"
+                    } else {
+                        statusbarItem?.button?.image = NSImage(systemSymbolName: "eye.slash.fill", accessibilityDescription: nil)
+                    }
+                }
+
                 // Notification View
                 func createNotificationView() {
                     notificationWindow = NSWindow(
@@ -95,30 +113,50 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                     notificationWindow.center()
                     notificationWindow.level = .floating
                     notificationWindow.orderFrontRegardless()
-                    notificationWindow.contentView = NSHostingView(rootView: NotificationView(window: notificationWindow, timerData: timerData))
+                    notificationWindow.contentView = NSHostingView(rootView: NotificationView(setStatusFunc: {
+                        self.leftTime = self.worktime - self.timerData.TimerMinute
+                        if self.leftTime != 0 {
+                            self.statusbarItem?.button?.image = nil
+                            self.statusbarItem?.button?.title = "\(self.leftTime)min"
+                        } else {
+                            self.statusbarItem?.button?.image = NSImage(systemSymbolName: "eye.slash.fill", accessibilityDescription: nil)
+                        }
+                    }, window: notificationWindow, timerData: self.timerData))
                     notificationWindow.isOpaque = true
-                    notificationWindow.backgroundColor = NSColor(red: 48, green: 48, blue: 48, alpha: 0.7)
+                    notificationWindow.backgroundColor = NSColor(red: 0, green: 0, blue: 0, alpha: 0.5)
                 }
-                // close notification window
-                func closeNotificationView() {
-                    notificationWindow.close()
-                }
+
                 timer = DispatchSource.makeTimerSource()
+                viewTimer = DispatchSource.makeTimerSource()
                 // repeat every minutes
                 timer?.schedule(deadline: DispatchTime.now() + 60, repeating: DispatchTimeInterval.seconds(60), leeway: DispatchTimeInterval.seconds(5))
                 // timer start up
                 timer?.setRegistrationHandler(handler: {
                     DispatchQueue.main.async {
-                        self.leftTime = self.worktime - self.timerData.TimerMinute
-                        self.statusbarItem?.button?.image = nil
-                        self.statusbarItem?.button?.title = "\(self.worktime)min"
+                        if self.twenty_twenty {
+                            self.worktime = 20
+                        }
+                        self.timerData.TimerMinute = 19
+                        setStatusTitle()
                     }
                 })
                 // timer event
                 timer?.setEventHandler {
-                    DispatchQueue.main.async {
+                    DispatchQueue.main.async { [self] in
+
+                        if self.twenty_twenty {
+                            self.worktime = 20
+                        }
+
                         self.timerData.TimerMinute += 1
-                        self.leftTime = self.worktime - self.timerData.TimerMinute
+
+                        setStatusTitle()
+
+                        if (self.timerData.TimerMinute >= self.worktime) && !self.twenty_twenty {
+                            self.timerData.NMleftTime = 60 - self.timerData.TimerMinute
+                            self.timerData.NMprogress = CGFloat((self.timerData.TimerMinute - self.worktime) / (60 - self.worktime))
+                        }
+
                         // show notification
                         if self.timerData.TimerMinute == self.worktime {
                             if self.fullscreen {
@@ -127,32 +165,36 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                                 createNotification()
                             }
                         }
-                        // status bar icon & title
-                        if self.leftTime != 0 {
-                            self.statusbarItem?.button?.image = nil
-                            self.statusbarItem?.button?.title = "\(self.leftTime)min"
-                        } else {
-                            self.statusbarItem?.button?.image = NSImage(systemSymbolName: "eye.slash.fill", accessibilityDescription: nil)
-                        }
                         // close notification window
-                        if self.fullscreen {
-                            if self.notificationWindow != nil && self.notificationWindow.isVisible {
-                                if !self.twenty_twenty {
-                                    if self.timerData.TimerMinute == 60 {
-                                        self.notificationWindow.close()
-                                        self.timerData.TimerSecond = 0
-                                        self.timerData.TimerMinute = 0
-                                        self.timerData.NMleftTime = 0
-                                    }
-                                } else {
-                                    if self.timerData.TimerSecond == 20 {
-                                        self.notificationWindow.close()
-                                        self.timerData.TimerSecond = 0
-                                        self.timerData.TimerMinute = 0
-                                        self.timerData.NMleftTime = 0
+                        if self.notificationWindow != nil && self.timerData.TimerMinute == 60 {
+                            NSSound.beep()
+                            closeNotificationView()
+                            setStatusTitle()
+                        }
+
+                        if self.twenty_twenty && (self.timerData.TimerMinute == 20) {
+                            viewTimer.schedule(deadline: DispatchTime.now() + 1, repeating: DispatchTimeInterval.seconds(1), leeway: DispatchTimeInterval.seconds(1))
+                            viewTimer.setRegistrationHandler(handler: {
+                                DispatchQueue.main.async {
+                                    self.timer.suspend()
+                                }
+                            })
+                            viewTimer.setEventHandler(handler: {
+                                DispatchQueue.main.async {
+                                    self.timerData.TimerSecond += 1
+                                    if self.timerData.TimerSecond > 20 {
+                                        if self.notificationWindow != nil {
+                                            NSSound.beep()
+                                            closeNotificationView()
+                                        }
+                                        self.timerData.Reset()
+                                        setStatusTitle()
+                                        self.timer.resume()
+                                        self.viewTimer.cancel()
                                     }
                                 }
-                            }
+                            })
+                            viewTimer.activate()
                         }
                     }
                 }

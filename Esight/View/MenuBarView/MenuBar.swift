@@ -22,11 +22,8 @@ struct MenuBar: View {
     @ObservedObject private var launchAtLogin = LaunchAtLogin.observable
     var body: some View {
         VStack {
-            Spacer().frame(maxHeight: 12)
-            Text("Esight").fontWeight(.heavy).font(.custom("PT Serif", size: 24)).kerning(1.0)
-            Divider()
             VStack {
-            Spacer().frame(height: 8)
+            Spacer().frame(height: 10)
             VStack(alignment: .leading) {
                 Toggle("Launch at login", isOn: $launchAtLogin.isEnabled).padding(.bottom, 10)
                 Picker("Mode", selection: $fullscreen) {
@@ -69,9 +66,7 @@ struct MenuBar: View {
                 Spacer()
                 Divider()
                 Button(action: {
-                    self.timerData.TimerMinute = 0
-                    self.timerData.TimerSecond = 0
-                    self.timerData.NMleftTime = 0
+                    self.timerData.Reset()
                 }) {
                     HStack {
                         Image(systemName: "arrow.clockwise")
@@ -83,9 +78,7 @@ struct MenuBar: View {
                         self.Timer?.suspend()
                     } else {
                         self.Timer?.resume()
-                        self.timerData.TimerMinute = 0
-                        self.timerData.TimerSecond = 0
-                        self.timerData.NMleftTime = 0
+                        self.timerData.Reset()
                     }
                     self.timerData.onHold.toggle()
                 }) {
@@ -94,7 +87,7 @@ struct MenuBar: View {
                         Text(self.timerData.onHold ? "enable Esight" : "On Hold")
                     }
                 }
-            }.padding(10)
+            }.padding(18)
             }
             if self.timerData.onHold {
                 Text("Esight won't work untill you dismiss on-hold")
@@ -107,6 +100,6 @@ struct MenuBar: View {
             }) {
                 Text("quit the app")
             }.padding(.bottom, 5)
-        }.frame(width: 270, height: 315, alignment: .top)
+        }.frame(width: 270, height: 272, alignment: .top)
     }
 }
