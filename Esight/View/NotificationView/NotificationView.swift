@@ -20,9 +20,10 @@ struct NotificationView: View {
             Spacer()
             if !twenty_twenty {
                 // normal mode
-                Text("Take a long break, \n or have an eye-shut")
+                Text("Take a long break,\n or have an eye-shut")
                     .font(.custom("Helvetica", size: 80))
                     .fontWeight(.heavy)
+                    .multilineTextAlignment(.center)
                 Spacer()
             } else {
                 // 20-20-20 mode

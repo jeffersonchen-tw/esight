@@ -124,6 +124,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                     }, window: notificationWindow, timerData: self.timerData))
                     notificationWindow.isOpaque = true
                     notificationWindow.backgroundColor = NSColor(red: 0, green: 0, blue: 0, alpha: 0.5)
+                    NSSound.beep()
                 }
 
                 timer = DispatchSource.makeTimerSource()
@@ -154,7 +155,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
                         if (self.timerData.TimerMinute >= self.worktime) && !self.twenty_twenty {
                             self.timerData.NMleftTime = 60 - self.timerData.TimerMinute
-                            self.timerData.NMprogress = CGFloat((self.timerData.TimerMinute - self.worktime) / (60 - self.worktime))
+                            self.timerData.NMprogress = 1 - CGFloat((self.timerData.TimerMinute - self.worktime) / (60 - self.worktime))
                         }
 
                         // show notification
