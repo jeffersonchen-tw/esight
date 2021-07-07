@@ -19,6 +19,7 @@ struct EsightApp: App {
 }
 
 class AppDelegate: NSObject, NSApplicationDelegate {
+    
     // status (menu) bar item
     var statusbarItem: NSStatusItem?
     var popOver = NSPopover()
@@ -51,14 +52,34 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             showPopup(sender)
         }
     }
+    
+    // status bar icon & title
+    func setStatusTitle() {
+        leftTime = worktime - timerData.TimerMinute
+        if (leftTime == 0) || (self.timerData.onHold) {
+            statusbarItem?.button?.image = NSImage(systemSymbolName: "eye.slash.fill", accessibilityDescription: nil)
+        } else {
+            statusbarItem?.button?.image = nil
+            statusbarItem?.button?.title = "\(leftTime)min"
+        }
+    }
+
+    @objc func sleepListener(_: Notification) {
+        print("sleep")
+        self.timerData.Reset()
+        self.setStatusTitle()
+    }
 
     func applicationDidFinishLaunching(_: Notification) {
         //
         UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { _, _ in }
         //
+        NSWorkspace.shared.notificationCenter.addObserver(self, selector: #selector(sleepListener(_:)), name: NSWorkspace.didWakeNotification, object: nil)
+        NSWorkspace.shared.notificationCenter.addObserver(self, selector: #selector(sleepListener(_:)), name: NSWorkspace.screensDidWakeNotification, object: nil)
+        //
         timerData = AppTimer()
         func createMenuBarView() {
-            let menuBar = MenuBar(Timer: timer, timerData: timerData)
+            let menuBar = MenuBar(setStatusFunc: self.setStatusTitle, Timer: timer, timerData: timerData)
             popOver.behavior = .transient
             popOver.animates = true
             popOver.contentViewController = NSViewController()
@@ -86,17 +107,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                 func closeNotificationView() {
                     notificationWindow.close()
                     timerData.Reset()
-                }
-
-                // status bar icon & title
-                func setStatusTitle() {
-                    leftTime = worktime - timerData.TimerMinute
-                    if leftTime != 0 {
-                        statusbarItem?.button?.image = nil
-                        statusbarItem?.button?.title = "\(leftTime)min"
-                    } else {
-                        statusbarItem?.button?.image = NSImage(systemSymbolName: "eye.slash.fill", accessibilityDescription: nil)
-                    }
                 }
 
                 // Notification View
@@ -137,8 +147,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                         if self.twenty_twenty {
                             self.worktime = 20
                         }
-                        self.timerData.TimerMinute = 19
-                        setStatusTitle()
+//                        self.timerData.TimerMinute = 19
+                        self.setStatusTitle()
                     }
                 })
                 // timer event
@@ -151,7 +161,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
                         self.timerData.TimerMinute += 1
 
-                        setStatusTitle()
+                        self.setStatusTitle()
 
                         if (self.timerData.TimerMinute >= self.worktime) && !self.twenty_twenty {
                             self.timerData.NMleftTime = 60 - self.timerData.TimerMinute
@@ -170,7 +180,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                         if self.notificationWindow != nil && self.timerData.TimerMinute == 60 {
                             NSSound.beep()
                             closeNotificationView()
-                            setStatusTitle()
+                            self.setStatusTitle()
                         }
 
                         if self.twenty_twenty && (self.timerData.TimerMinute == 20) {
@@ -189,7 +199,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                                             closeNotificationView()
                                         }
                                         self.timerData.Reset()
-                                        setStatusTitle()
+                                        self.setStatusTitle()
                                         self.timer.resume()
                                         self.viewTimer.cancel()
                                     }

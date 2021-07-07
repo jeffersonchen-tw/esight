@@ -11,6 +11,7 @@ import LaunchAtLogin
 
 struct MenuBar: View {
     // app setting data
+    var setStatusFunc: () -> Void
     @AppStorage(Settings.Twenty_TewntyKey) var twenty_twenty = false
     @AppStorage(Settings.WorkTimeKey) var worktime = 40
     @AppStorage(Settings.FullScreenKey) var fullscreen = true
@@ -67,6 +68,7 @@ struct MenuBar: View {
                 Divider()
                 Button(action: {
                     self.timerData.Reset()
+                    self.setStatusFunc()
                 }) {
                     HStack {
                         Image(systemName: "arrow.clockwise")
@@ -81,13 +83,14 @@ struct MenuBar: View {
                         self.timerData.Reset()
                     }
                     self.timerData.onHold.toggle()
+                    self.setStatusFunc()
                 }) {
                     HStack {
                         Image(systemName: self.timerData.onHold ? "play.fill" : "pause.fill")
                         Text(self.timerData.onHold ? "enable Esight" : "On Hold")
                     }
                 }
-            }.padding(18)
+            }.padding(13)
             }
             if self.timerData.onHold {
                 Text("Esight won't work untill you dismiss on-hold")
@@ -100,6 +103,6 @@ struct MenuBar: View {
             }) {
                 Text("quit the app")
             }.padding(.bottom, 5)
-        }.frame(width: 270, height: 272, alignment: .top)
+        }.frame(width: 270, height: 290, alignment: .top)
     }
 }
