@@ -65,7 +65,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     @objc func sleepListener(_: Notification) {
-        print("sleep")
         self.timerData.Reset()
         self.setStatusTitle()
     }
