@@ -11,6 +11,7 @@ import UserNotifications
 
 struct SettingView: View {
     // view index
+    var setStatusFunc: () -> Void
     @Binding var selected: Int
     // app setting data
     @AppStorage(Settings.Twenty_TewntyKey) var twenty_twenty = false
@@ -18,9 +19,9 @@ struct SettingView: View {
     @AppStorage(Settings.FullScreenKey) var fullscreen = true
     //
     @ObservedObject private var launchAtLogin = LaunchAtLogin.observable
-    
+
     var worktimeList = [20, 25, 30, 35, 40, 45, 50]
-    
+
     var body: some View {
         VStack {
             Spacer().frame(maxHeight: 10)
@@ -56,10 +57,19 @@ struct SettingView: View {
                 Spacer().frame(height: 20)
                 if !twenty_twenty {
                     HStack {
-                        Picker("work", selection: $worktime) {
-                            ForEach(worktimeList, id: \.self) { Text("\($0)")
+                        Stepper(onIncrement: {
+                            if worktime < 50 {
+                                worktime += 5
+                                self.setStatusFunc()
                             }
-                        }.frame(width: 130)
+                        }, onDecrement: {
+                            if worktime > 20 {
+                                worktime -= 5
+                                self.setStatusFunc()
+                            }
+                        }) {
+                            Text("work \($worktime.wrappedValue)")
+                        }
                         Text("minute per hour")
                     }.offset(x: 50)
                 }

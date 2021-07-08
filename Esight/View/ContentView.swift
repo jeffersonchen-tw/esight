@@ -10,12 +10,13 @@ import SwiftUI
 struct ContentView: View {
     // index of view
     @State private var showView: Int = 0
+    var setStatus: () -> Void
     // render view
     var body: some View {
         TabView(selection: self.$showView) {
             MainMenu(selected: self.$showView)
                 .tabItem({Text("menu")}).tag(0)
-            SettingView(selected: self.$showView)
+            SettingView(setStatusFunc: self.setStatus, selected: self.$showView)
                 .tabItem({Text("Settings")}).tag(1)
             AboutView(selected: self.$showView)
                 .tabItem({Text("About")}).tag(2)

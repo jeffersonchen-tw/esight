@@ -13,7 +13,7 @@ struct EsightApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) var appdelegate
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            ContentView(setStatus: appdelegate.setStatusTitle)
         }
     }
 }
@@ -67,6 +67,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     @objc func sleepListener(_: Notification) {
         self.timerData.Reset()
         self.setStatusTitle()
+        if self.notificationWindow.isVisible {
+            self.notificationWindow.close()
+        }
     }
 
     func applicationDidFinishLaunching(_: Notification) {
@@ -173,6 +176,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                                 createNotificationView()
                             } else {
                                 createNotification()
+                                self.setStatusTitle()
                             }
                         }
                         // close notification window

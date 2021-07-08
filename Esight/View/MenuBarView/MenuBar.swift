@@ -16,6 +16,8 @@ struct MenuBar: View {
     @AppStorage(Settings.WorkTimeKey) var worktime = 40
     @AppStorage(Settings.FullScreenKey) var fullscreen = true
     //
+    @AppStorage(Settings.NotificationPermitKey) var notificationpermit = false
+    //
     let Timer: DispatchSourceTimer?
     // timer data
     @ObservedObject var timerData: AppTimer
@@ -31,14 +33,14 @@ struct MenuBar: View {
                     Text("fullscreen pop-up").font(.custom("Helvetica", size: 14)).tag(true)
                     Text("notification").font(.custom("Helvetica", size: 14)).tag(false)
                 }.frame(width: 180)
-                if !fullscreen {
+                if !fullscreen && !self.notificationpermit {
                     Button("grant permission") {
                         UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .badge, .sound]) {
-                            success, error in
+                            success, _ in
                             if success {
-                                print("success")
-                            } else if let error = error {
-                                print(error.localizedDescription)
+                                self.notificationpermit = true
+                            } else {
+                                self.notificationpermit = false
                             }
                         }
                     }.offset(x: 50)
@@ -53,10 +55,12 @@ struct MenuBar: View {
                         Stepper(onIncrement: {
                             if worktime < 50 {
                                 worktime += 5
+                                self.setStatusFunc()
                             }
                         }, onDecrement: {
                             if worktime > 20 {
                                 worktime -= 5
+                                self.setStatusFunc()
                             }
                         }) {
                             Text("work \($worktime.wrappedValue)")
@@ -103,6 +107,6 @@ struct MenuBar: View {
             }) {
                 Text("quit the app")
             }.padding(.bottom, 5)
-        }.frame(width: 270, height: 290, alignment: .top)
+        }.frame(width: 270, height: 280, alignment: .top)
     }
 }
