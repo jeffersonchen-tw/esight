@@ -33,7 +33,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     var timer: DispatchSourceTimer!
     var viewTimer: DispatchSourceTimer!
     var timerData: AppTimer!
-    var notificationWindow: NSWindow!
+    var notificationWindow: NSWindow?
     // menubar popover
     @objc func togglePopover(_ sender: AnyObject?) {
         // show
@@ -69,7 +69,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         self.timerData.Reset()
         self.setStatusTitle()
         if self.notificationWindow != nil {
-            self.notificationWindow.close()
+            self.notificationWindow?.close()
         }
     }
 
@@ -108,7 +108,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
                 }
                 // close Notification View
                 func closeNotificationView() {
-                    notificationWindow.close()
+                    notificationWindow?.close()
                     timerData.Reset()
                 }
 
@@ -123,10 +123,10 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
                         backing: .buffered,
                         defer: false
                     )
-                    notificationWindow.center()
-                    notificationWindow.level = .floating
-                    notificationWindow.orderFrontRegardless()
-                    notificationWindow.contentView = NSHostingView(rootView: NotificationView(setStatusFunc: {
+                    notificationWindow?.center()
+                    notificationWindow?.level = .floating
+                    notificationWindow?.orderFrontRegardless()
+                    notificationWindow?.contentView = NSHostingView(rootView: NotificationView(setStatusFunc: {
                         self.leftTime = self.worktime - self.timerData.TimerMinute
                         if self.leftTime != 0 {
                             self.statusbarItem?.button?.image = nil
@@ -135,8 +135,8 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
                             self.statusbarItem?.button?.image = NSImage(systemSymbolName: "eye.slash.fill", accessibilityDescription: nil)
                         }
                     }, window: notificationWindow, timerData: self.timerData))
-                    notificationWindow.isOpaque = true
-                    notificationWindow.backgroundColor = NSColor(red: 0, green: 0, blue: 0, alpha: 0.5)
+                    notificationWindow?.isOpaque = true
+                    notificationWindow!.backgroundColor = NSColor(red: 0, green: 0, blue: 0, alpha: 0.5)
                     NSSound.beep()
                 }
 
