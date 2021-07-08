@@ -16,6 +16,8 @@ struct MenuBar: View {
     @AppStorage(Settings.WorkTimeKey) var worktime = 40
     @AppStorage(Settings.FullScreenKey) var fullscreen = true
     //
+    @AppStorage(Settings.NMworktimeKey) var nmworktime = 40
+    //
     @AppStorage(Settings.NotificationPermitKey) var notificationpermit = false
     //
     let Timer: DispatchSourceTimer?
@@ -48,22 +50,31 @@ struct MenuBar: View {
                 Spacer().frame(height: 15)
                 Toggle(isOn: $twenty_twenty) {
                     Text("20-20-20 Rule").font(.custom("Helvetica", size: 14))
-                }.toggleStyle(CheckboxToggleStyle())
+                }.onReceive([self.twenty_twenty].publisher.first()) { (value) in
+                    if value {
+                        self.worktime = 20
+                    } else {
+                        self.worktime = self.nmworktime
+                    }
+                    self.setStatusFunc()
+                }
+                .toggleStyle(CheckboxToggleStyle())
                 if !twenty_twenty {
                     Spacer().frame(height: 10)
                     HStack {
                         Stepper(onIncrement: {
-                            if worktime < 50 {
-                                worktime += 5
-                                self.setStatusFunc()
+                            if self.nmworktime < 50 {
+                                self.nmworktime += 5
                             }
                         }, onDecrement: {
-                            if worktime > 20 {
-                                worktime -= 5
-                                self.setStatusFunc()
+                            if self.nmworktime > 20 {
+                                self.nmworktime -= 5
                             }
                         }) {
-                            Text("work \($worktime.wrappedValue)")
+                            Text("work \($nmworktime.wrappedValue)")
+                        }.onReceive([self.nmworktime].publisher.first()) { _ in
+                            self.worktime = self.nmworktime
+                            setStatusFunc()
                         }
                         Text("minutes per hour")
                     }.offset(x: 20)
@@ -107,6 +118,7 @@ struct MenuBar: View {
             }) {
                 Text("quit the app")
             }.padding(.bottom, 5)
-        }.frame(width: 270, height: 280, alignment: .top)
+        }
+        .frame(width: 270, height: 280, alignment: .top)
     }
 }

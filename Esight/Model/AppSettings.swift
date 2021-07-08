@@ -10,5 +10,6 @@ struct Settings {
     static let WorkTimeKey = "worktime"
     static let FullScreenKey = "fullscreen"
     static let NotificationPermitKey = "notificationpermit"
+    static let NMworktimeKey = "nmworktime"
 }
 

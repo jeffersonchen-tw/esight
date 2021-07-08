@@ -157,10 +157,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                 timer?.setEventHandler {
                     DispatchQueue.main.async { [self] in
 
-                        if self.twenty_twenty {
-                            self.worktime = 20
-                        }
-
                         self.timerData.TimerMinute += 1
 
                         self.setStatusTitle()
