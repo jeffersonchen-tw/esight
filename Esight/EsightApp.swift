@@ -55,12 +55,13 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     
     // status bar icon & title
     func setStatusTitle() {
-        leftTime = worktime - timerData.TimerMinute
-        if (leftTime == 0) || (self.timerData.onHold) {
+        self.leftTime = self.worktime - self.timerData.TimerMinute
+        if (self.leftTime == 0) || (self.timerData.onHold) {
+            statusbarItem?.button?.title = ""
             statusbarItem?.button?.image = NSImage(systemSymbolName: "eye.slash.fill", accessibilityDescription: nil)
         } else {
             statusbarItem?.button?.image = nil
-            statusbarItem?.button?.title = "\(leftTime)min"
+            statusbarItem?.button?.title = "\(self.leftTime)min"
         }
     }
 
@@ -149,7 +150,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                         if self.twenty_twenty {
                             self.worktime = 20
                         }
-//                        self.timerData.TimerMinute = 19
+         //               self.timerData.TimerMinute = 19
                         self.setStatusTitle()
                     }
                 })
