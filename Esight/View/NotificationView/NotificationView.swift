@@ -15,6 +15,9 @@ struct NotificationView: View {
     @AppStorage(Settings.Twenty_TewntyKey) var twenty_twenty = false
     @StateObject var timerData: AppTimer
     //
+    var outterTimer: DispatchSourceTimer
+    var innerTimer: DispatchSourceTimer
+    //
     var body: some View {
         VStack {
             Spacer()
@@ -87,6 +90,10 @@ struct NotificationView: View {
             Button(action: {
                 self.timerData.Reset()
                 setStatusFunc()
+                if self.twenty_twenty {
+                    outterTimer.resume()
+                    self.innerTimer.cancel()
+                }
                 window?.close()
             }, label: {
                 Text("Skip")

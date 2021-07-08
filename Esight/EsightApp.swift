@@ -134,7 +134,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
                         } else {
                             self.statusbarItem?.button?.image = NSImage(systemSymbolName: "eye.slash.fill", accessibilityDescription: nil)
                         }
-                    }, window: notificationWindow, timerData: self.timerData))
+                    }, window: notificationWindow, timerData: self.timerData, outterTimer: self.timer, innerTimer: self.viewTimer))
                     notificationWindow?.isOpaque = true
                     notificationWindow!.backgroundColor = NSColor(red: 0, green: 0, blue: 0, alpha: 0.5)
                     NSSound.beep()
