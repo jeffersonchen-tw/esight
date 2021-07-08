@@ -18,8 +18,8 @@ struct EsightApp: App {
     }
 }
 
-class AppDelegate: NSObject, NSApplicationDelegate {
-    
+class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
+
     // status (menu) bar item
     var statusbarItem: NSStatusItem?
     var popOver = NSPopover()
@@ -52,7 +52,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             showPopup(sender)
         }
     }
-    
+
     // status bar icon & title
     func setStatusTitle() {
         self.leftTime = self.worktime - self.timerData.TimerMinute
@@ -68,7 +68,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     @objc func sleepListener(_: Notification) {
         self.timerData.Reset()
         self.setStatusTitle()
-        if self.notificationWindow.isVisible {
+        if self.notificationWindow != nil {
             self.notificationWindow.close()
         }
     }
@@ -77,8 +77,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         //
         UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { _, _ in }
         //
-        NSWorkspace.shared.notificationCenter.addObserver(self, selector: #selector(sleepListener(_:)), name: NSWorkspace.didWakeNotification, object: nil)
-        NSWorkspace.shared.notificationCenter.addObserver(self, selector: #selector(sleepListener(_:)), name: NSWorkspace.screensDidWakeNotification, object: nil)
+//        NSWorkspace.shared.notificationCenter.addObserver(self, selector: #selector(sleepListener(_:)), name: NSWorkspace.didWakeNotification, object: nil)
+       NSWorkspace.shared.notificationCenter.addObserver(self, selector: #selector(sleepListener(_:)), name: NSWorkspace.screensDidWakeNotification, object: nil)
         //
         timerData = AppTimer()
         func createMenuBarView() {
