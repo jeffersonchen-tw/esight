@@ -19,7 +19,6 @@ struct EsightApp: App {
 }
 
 class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
-
     // status (menu) bar item
     var statusbarItem: NSStatusItem?
     var popOver = NSPopover()
@@ -55,21 +54,21 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
 
     // status bar icon & title
     func setStatusTitle() {
-        self.leftTime = self.worktime - self.timerData.TimerMinute
-        if (self.leftTime == 0) || (self.timerData.onHold) {
+        leftTime = worktime - timerData.TimerMinute
+        if (leftTime == 0) || timerData.onHold {
             statusbarItem?.button?.title = ""
             statusbarItem?.button?.image = NSImage(systemSymbolName: "eye.slash.fill", accessibilityDescription: nil)
         } else {
             statusbarItem?.button?.image = nil
-            statusbarItem?.button?.title = "\(self.leftTime)min"
+            statusbarItem?.button?.title = "\(leftTime)min"
         }
     }
 
     @objc func sleepListener(_: Notification) {
-        self.timerData.Reset()
-        self.setStatusTitle()
-        if self.notificationWindow != nil {
-            self.notificationWindow?.close()
+        timerData.Reset()
+        setStatusTitle()
+        if notificationWindow != nil {
+            notificationWindow?.close()
         }
     }
 
@@ -78,11 +77,11 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { _, _ in }
         //
 //        NSWorkspace.shared.notificationCenter.addObserver(self, selector: #selector(sleepListener(_:)), name: NSWorkspace.didWakeNotification, object: nil)
-       NSWorkspace.shared.notificationCenter.addObserver(self, selector: #selector(sleepListener(_:)), name: NSWorkspace.screensDidWakeNotification, object: nil)
+        NSWorkspace.shared.notificationCenter.addObserver(self, selector: #selector(sleepListener(_:)), name: NSWorkspace.screensDidWakeNotification, object: nil)
         //
         timerData = AppTimer()
         func createMenuBarView() {
-            let menuBar = MenuBar(setStatusFunc: self.setStatusTitle, Timer: timer, timerData: timerData)
+            let menuBar = MenuBar(setStatusFunc: setStatusTitle, Timer: timer, timerData: timerData)
             popOver.behavior = .transient
             popOver.animates = true
             popOver.contentViewController = NSViewController()
@@ -134,14 +133,13 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
                         } else {
                             self.statusbarItem?.button?.image = NSImage(systemSymbolName: "eye.slash.fill", accessibilityDescription: nil)
                         }
-                    }, window: notificationWindow, timerData: self.timerData, outterTimer: self.timer, innerTimer: self.viewTimer))
+                    }, window: notificationWindow, timerData: self.timerData, outterTimer: timer, innerTimer: viewTimer))
                     notificationWindow?.isOpaque = true
                     notificationWindow!.backgroundColor = NSColor(red: 0, green: 0, blue: 0, alpha: 0.5)
                     NSSound.beep()
                 }
 
                 timer = DispatchSource.makeTimerSource()
-                viewTimer = DispatchSource.makeTimerSource()
                 // repeat every minutes
                 timer?.schedule(deadline: DispatchTime.now() + 60, repeating: DispatchTimeInterval.seconds(60), leeway: DispatchTimeInterval.seconds(5))
                 // timer start up
@@ -150,7 +148,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
                         if self.twenty_twenty {
                             self.worktime = 20
                         }
-         //               self.timerData.TimerMinute = 19
+//                        self.timerData.TimerMinute = 19
                         self.setStatusTitle()
                     }
                 })
@@ -184,13 +182,14 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
                         }
 
                         if self.twenty_twenty && (self.timerData.TimerMinute == 20) {
-                            viewTimer.schedule(deadline: DispatchTime.now() + 1, repeating: DispatchTimeInterval.seconds(1), leeway: DispatchTimeInterval.seconds(1))
-                            viewTimer.setRegistrationHandler(handler: {
+                            self.viewTimer = DispatchSource.makeTimerSource()
+                            self.viewTimer.schedule(deadline: DispatchTime.now() + 1, repeating: DispatchTimeInterval.seconds(1), leeway: DispatchTimeInterval.seconds(1))
+                            self.viewTimer.setRegistrationHandler(handler: {
                                 DispatchQueue.main.async {
                                     self.timer.suspend()
                                 }
                             })
-                            viewTimer.setEventHandler(handler: {
+                            self.viewTimer.setEventHandler(handler: {
                                 DispatchQueue.main.async {
                                     self.timerData.TimerSecond += 1
                                     if self.timerData.TimerSecond > 20 {
@@ -198,7 +197,6 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
                                             NSSound.beep()
                                             closeNotificationView()
                                         }
-                                        self.timerData.Reset()
                                         self.setStatusTitle()
                                         self.timer.resume()
                                         self.viewTimer.cancel()

@@ -16,7 +16,7 @@ struct NotificationView: View {
     @StateObject var timerData: AppTimer
     //
     var outterTimer: DispatchSourceTimer
-    var innerTimer: DispatchSourceTimer
+    var innerTimer: DispatchSourceTimer?
     //
     var body: some View {
         VStack {
@@ -89,12 +89,12 @@ struct NotificationView: View {
             Spacer()
             Button(action: {
                 self.timerData.Reset()
-                setStatusFunc()
+                self.setStatusFunc()
                 if self.twenty_twenty {
-                    outterTimer.resume()
-                    self.innerTimer.cancel()
+                    self.outterTimer.resume()
+                    self.innerTimer!.cancel()
                 }
-                window?.close()
+                self.window?.close()
             }, label: {
                 Text("Skip")
                     .foregroundColor(.orange)
