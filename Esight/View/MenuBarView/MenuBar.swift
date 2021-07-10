@@ -53,10 +53,14 @@ struct MenuBar: View {
                 }.onReceive([self.twenty_twenty].publisher.first()) { (value) in
                     if value {
                         self.worktime = 20
+                        if self.timerData.TimerMinute >= 20 {
+                            self.timerData.Reset()
+                        }
+                        setStatusFunc()
                     } else {
                         self.worktime = self.nmworktime
+                        setStatusFunc()
                     }
-                    self.setStatusFunc()
                 }
                 .toggleStyle(CheckboxToggleStyle())
                 if !twenty_twenty {

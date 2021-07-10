@@ -22,6 +22,7 @@ struct SettingView: View {
     //
     @AppStorage(Settings.NotificationPermitKey) var notificationpermit = false
     //
+    @ObservedObject var timerData: AppTimer
     @ObservedObject private var launchAtLogin = LaunchAtLogin.observable
 
     var worktimeList = [20, 25, 30, 35, 40, 45, 50]
@@ -62,11 +63,16 @@ struct SettingView: View {
                 Toggle(isOn: $twenty_twenty) {
                     Text("20-20-20 Rule").font(.custom("Helvetica", size: 22))
                         .padding(5)
-                }.onReceive([self.twenty_twenty].publisher.first()) { (value) in
+                }.onReceive([self.twenty_twenty].publisher.first()) { value in
                     if value {
                         self.worktime = 20
+                        if self.timerData.TimerMinute >= 20 {
+                            self.timerData.Reset()
+                        }
+                        setStatusFunc()
                     } else {
                         self.worktime = self.nmworktime
+                        setStatusFunc()
                     }
                 }
                 .toggleStyle(CheckboxToggleStyle())

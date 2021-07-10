@@ -13,7 +13,7 @@ struct EsightApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) var appdelegate
     var body: some Scene {
         WindowGroup {
-            ContentView(setStatus: appdelegate.setStatusTitle)
+            ContentView(timerData: appdelegate.timerData, setStatus: appdelegate.setStatusTitle)
         }
     }
 }
@@ -31,8 +31,9 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     // timer
     var timer: DispatchSourceTimer!
     var viewTimer: DispatchSourceTimer!
-    var timerData: AppTimer!
+    var timerData = AppTimer()
     var notificationWindow: NSWindow?
+    //
     // menubar popover
     @objc func togglePopover(_ sender: AnyObject?) {
         // show
@@ -79,7 +80,6 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
 //        NSWorkspace.shared.notificationCenter.addObserver(self, selector: #selector(sleepListener(_:)), name: NSWorkspace.didWakeNotification, object: nil)
         NSWorkspace.shared.notificationCenter.addObserver(self, selector: #selector(sleepListener(_:)), name: NSWorkspace.screensDidWakeNotification, object: nil)
         //
-        timerData = AppTimer()
         func createMenuBarView() {
             let menuBar = MenuBar(setStatusFunc: setStatusTitle, Timer: timer, timerData: timerData)
             popOver.behavior = .transient
