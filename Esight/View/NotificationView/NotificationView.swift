@@ -92,7 +92,7 @@ struct NotificationView: View {
                 self.setStatusFunc()
                 if self.twenty_twenty {
                     self.outterTimer.resume()
-                    self.innerTimer!.cancel()
+                    self.innerTimer?.cancel()
                 }
                 self.window?.close()
             }, label: {
