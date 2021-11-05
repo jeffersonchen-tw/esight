@@ -4,8 +4,5 @@
 
 #### ⚠️ **Note**: the app require Mac OS X 11.0 or greater (Big Sur)
 
----
+A simple "native" macos app aims to protect our eyes.
 
-## A simple "native" macos app aims to protect our eyes.
-
-![demo](https://github.com/jeffersonchen-tw/esight/blob/main/esight.gif)
